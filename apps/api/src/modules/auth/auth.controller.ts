@@ -19,7 +19,7 @@ import { Account } from '../account/entities/account.entity';
 import { AppService } from '../../app.service';
 import { AuthCookiesService } from '../../shared/http/cookies/auth-cookies.service';
 import { buildGoogleRedirectUrl } from './auth.helpers';
-import { Response, Request } from 'express';
+import type { Response, Request } from 'express';
 import { AuthAccountResponse } from './interfaces/auth-account-response.interface';
 
 @Controller()
@@ -140,3 +140,7 @@ export class AuthController {
     return res.json({ message: 'Logged out successfully' });
   }
 }
+function Public(): (target: AuthController, propertyKey: "register", descriptor: TypedPropertyDescriptor<(dto: RegisterUserDto) => Promise<{ message: string; user: { message: string; }; }>>) => void | TypedPropertyDescriptor<...> {
+  throw new Error('Function not implemented.');
+}
+

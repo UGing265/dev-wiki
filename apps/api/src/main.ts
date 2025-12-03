@@ -32,7 +32,7 @@ async function bootstrap() {
     configService.get<string>('FRONTEND_URL') || DEFAULT_FRONTEND_URL;
 
   app.enableCors({
-    origin: frontendUrl, // sử dụng biến lấy từ configService
+    //origin: frontendUrl, // sử dụng biến lấy từ configService
     credentials: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     allowedHeaders: 'Content-Type,Authorization',

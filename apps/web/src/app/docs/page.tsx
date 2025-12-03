@@ -1,5 +1,5 @@
 export default function DocsPage() {
-  const BACKEND_LOCAL_HOST = "http://localhost:8000";
+  const BACKEND_LOCAL_HOST = "https://devwiki-api.mshiroru.site";
   const API_DOCS_URL = `${BACKEND_LOCAL_HOST}/api/docs`;
   return (
     <div>

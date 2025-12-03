@@ -1,6 +1,21 @@
 version: '3.8'
 
 services:
+  # ... (Giữ nguyên các service npm, postgres, api, web cũ của bạn) ...
+
+  # ================================
+  # 5. Cloudflare Tunnel (Thêm cái này vào)
+  # ================================
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflare-tunnel
+    restart: unless-stopped
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=eyJhIjoiMmZlMDQyNjAxYjg5YzMzZmRjN2FmOTg1ZWRmYzU2NDEiLCJ0IjoiODkyODgwYzMtODcxMS00ZjA5LWE4YmMtMDg5YjE2YzZiZjc4IiwicyI6IlkyUXpaVGN6WTJNdFltRmxNaTAwWWpVeExUaGhOemt0T1RCbU56TTJaamt6TlRneiJ9
+    networks:
+      - dev-wiki-network
+
   # ================================
   # 1. NGINX PROXY MANAGER (Gateway)
   # ================================
@@ -27,16 +42,16 @@ services:
     container_name: dev-wiki-postgres
     environment:
       POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
     ports:
-      - "5432:5432"
+      - "5434:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./apps/db:/docker-entrypoint-initdb.d:ro
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ${DB_NAME}"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -48,20 +63,20 @@ services:
   # ================================
   api:
     # KHÔNG BUILD NỮA -> Dùng Image từ Docker Hub
-    image: lgdlong/dev-wiki-api:v2.2
+    image: shiroruct/dev-wiki-api:latest
     container_name: dev-wiki-api
     environment:
       NODE_ENV: ${NODE_ENV:-production}
       DB_HOST: postgres
       DB_PORT: 5432
       DB_NAME: ${DB_NAME}
-      DB_USER: ${DB_USER}
-      DB_PASSWORD: ${DB_PASSWORD}
+      USERNAME: postgres
+      PASSWORD: postgres
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION: ${JWT_EXPIRATION:-7d}
-      GOOGLE_OAUTH_CLIENT_ID: ${GOOGLE_CLIENT_ID} # Dùng CLIENT_ID/SECRET từ .env
-      GOOGLE_OAUTH_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
-      GOOGLE_OAUTH_CALLBACK_URL: ${GOOGLE_CALLBACK_URL} # Lấy từ biến đã set trong .env
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      GOOGLE_CALLBACK_URL: ${GOOGLE_CALLBACK_URL}
       API_BASE_URL: ${API_BASE_URL} # Lấy từ biến đã set trong .env
       FRONTEND_URL: ${FRONTEND_URL}
     expose:
@@ -78,7 +93,7 @@ services:
   # ================================
   web:
     # KHÔNG BUILD NỮA -> Dùng Image từ Docker Hub
-    image: lgdlong/dev-wiki-web:latest
+    image: shiroruct/dev-wiki-web:latest
     container_name: dev-wiki-web
     environment:
       NODE_ENV: production
